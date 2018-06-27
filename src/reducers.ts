@@ -7,8 +7,9 @@ import * as actions from './actions';
  */
 export const indexReducer: types.IReducerSpec = {
   reducers: {
-    [actions.lockPluginIndex as any]: (state, payload) =>
-      util.setSafe(state, [payload.gameId, payload.plugin], payload.index),
+    [actions.lockPluginIndex as any]: (state, payload) => (payload.index !== undefined)
+      ? util.setSafe(state, [payload.gameId, payload.plugin], payload.index)
+      : util.deleteOrNop(state, [payload.gameId, payload.plugin]),
   },
   defaults: {
   },
