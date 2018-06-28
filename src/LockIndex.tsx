@@ -2,10 +2,10 @@ import { lockPluginIndex } from './actions';
 import { IPlugin } from './types';
 
 import * as React from 'react';
-import { FormControl } from 'react-bootstrap';
+import { ControlLabel, FormControl, FormGroup } from 'react-bootstrap';
 import { translate } from 'react-i18next';
 import { connect } from 'react-redux';
-import { ComponentEx, selectors, Toggle, types, util } from 'vortex-api';
+import { ComponentEx, FlexLayout, Toggle, types, util } from 'vortex-api';
 
 function toHex(input: number) {
   if (input === undefined) {
@@ -40,26 +40,39 @@ class LockIndex extends ComponentEx<IProps, {}> {
       ? t('Locked to index', { replace: { lockedIndex: toHex(lockedIndex) } })
       : t('Sorted automatically');
     return (
-      <Toggle
-        checked={lockedIndex !== undefined}
-        onToggle={this.onToggle}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', width: 150 }}>
-          <div style={{ whiteSpace: 'nowrap', marginRight: 4 }}>{title}</div>
-          {(lockedIndex === undefined) ? null : this.renderIndex()}
-        </div>
-      </ Toggle>
+      <FlexLayout type='column'>
+        <Toggle
+          checked={lockedIndex !== undefined}
+          onToggle={this.onToggle}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', width: 150 }}>
+            <div style={{ whiteSpace: 'nowrap', marginRight: 4 }}>{title}</div>
+          </div>
+        </Toggle>
+        {(lockedIndex === undefined) ? null : this.renderIndex()}
+      </FlexLayout>
     );
   }
 
   private renderIndex(): JSX.Element {
-    const { lockedIndex } = this.props;
+    const { t, lockedIndex, plugin } = this.props;
+
+    const matched = plugin.modIndex === lockedIndex;
+
     return (
-      <FormControl
-        type='text'
-        value={toHex(lockedIndex)}
-        onChange={this.setIndex}
-      />
+      <FormGroup validationState={matched ? 'success' : 'error'}>
+        <FormControl
+          type='text'
+          value={toHex(lockedIndex)}
+          onChange={this.setIndex}
+        />
+        {matched ? null : (
+          <ControlLabel style={{ maxWidth: 250 }}>
+            {t('Actual index differs. If this is the case after sorting it may be '
+               + 'this index isn\'t possible.')}
+          </ControlLabel>
+        )}
+      </FormGroup>
     );
   }
 

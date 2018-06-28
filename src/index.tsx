@@ -71,9 +71,12 @@ function genApplyIndexlock(store: Redux.Store<any>) {
       return prev;
     }, {});
 
+    /*
     const plugins = util.getSafe(state, ['session', 'plugins', 'pluginList'], {});
     let currentIndex: number = Object.keys(plugins).filter(
       key => plugins[key].isNative && (path.extname(key) !== '.esl')).length;
+    */
+    let currentIndex: number = 0;
 
     // insert the plugins where the locked index is too low at the beginning
     // TODO: This is rather inefficient but it should also not run too often
