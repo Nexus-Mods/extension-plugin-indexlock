@@ -94,7 +94,7 @@ function genApplyIndexlock(store: Redux.Store<any>) {
 
     // tslint:disable-next-line:prefer-for-of
     for (let idx = 0; (idx < sorted.length) && (Object.keys(toInsert).length > 0); ++idx) {
-      if (!newLoadOrder[sorted[idx]].enabled) {
+      if ((newLoadOrder[sorted[idx]] === undefined) || !newLoadOrder[sorted[idx]].enabled) {
         continue;
       }
       if (path.extname(sorted[idx]) === '.esl') {
