@@ -5,6 +5,7 @@ import * as React from 'react';
 import { ControlLabel, FormControl, FormGroup } from 'react-bootstrap';
 import { translate } from 'react-i18next';
 import { connect } from 'react-redux';
+import * as Redux from 'redux';
 import { ComponentEx, FlexLayout, Toggle, types, util } from 'vortex-api';
 
 function toHex(input: number) {
