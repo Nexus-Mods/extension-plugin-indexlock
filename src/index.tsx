@@ -6,7 +6,6 @@ import * as Promise from 'bluebird';
 import * as I18next from 'i18next';
 import * as path from 'path';
 import * as React from 'react';
-import * as Redux from 'redux';
 import { selectors, types, util } from 'vortex-api';
 
 function genAttribute(api: types.IExtensionApi): types.ITableAttribute<IPlugin> {
@@ -46,14 +45,14 @@ interface ILoadOrderEntry {
   loadOrder: number;
 }
 
-function genApplyIndexlock(store: Redux.Store<any>) {
+function genApplyIndexlock(api: types.IExtensionApi) {
   let updating: boolean = false;
   return (newLoadOrder: { [key: string]: ILoadOrderEntry }) => {
     if (updating) {
       return;
     }
 
-    const state = store.getState();
+    const state = api.store.getState();
     const gameMode = selectors.activeGameId(state);
     const fixed = util.getSafe(state, ['persistent', 'plugins', 'lockedIndices', gameMode], {});
     if (Object.keys(fixed).length === 0) {
@@ -113,12 +112,7 @@ function genApplyIndexlock(store: Redux.Store<any>) {
     });
     try {
       updating = true;
-      // TODO: bit of a hack. We can't use the react-act action from
-      //   a different extension
-      store.dispatch({
-        type: 'SET_PLUGIN_ORDER',
-        payload: sorted,
-      });
+      api.events.emit('set-plugin-list', sorted, false);
     } finally {
       updating = false;
     }
@@ -137,7 +131,7 @@ function init(context: types.IExtensionContext) {
       applyIndexlock(util.getSafe(store.getState(), ['loadOrder'], {}));
       return Promise.resolve();
     }, 2000);
-    const applyIndexlock = genApplyIndexlock(store);
+    const applyIndexlock = genApplyIndexlock(context.api);
     context.api.onStateChange(['loadOrder'], (oldState, newState) => applyIndexlock(newState));
     context.api.onStateChange(['persistent', 'plugins', 'lockedIndices'], () => {
       liDebouncer.schedule();
