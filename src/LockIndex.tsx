@@ -2,7 +2,7 @@ import { lockPluginIndex } from './actions';
 import { IPlugin } from './types';
 
 import * as React from 'react';
-import { ControlLabel, FormControl, FormGroup } from 'react-bootstrap';
+import { ControlLabel, FormControl, FormGroup, Radio } from 'react-bootstrap';
 import { translate } from 'react-i18next';
 import { connect } from 'react-redux';
 import * as Redux from 'redux';
@@ -42,15 +42,23 @@ class LockIndex extends ComponentEx<IProps, {}> {
       : t('Sorted automatically');
     return (
       <FlexLayout type='column'>
-        <Toggle
-          checked={lockedIndex !== undefined}
-          onToggle={this.onToggle}
+        <Radio
+          name='lockedGroup'
+          checked={lockedIndex === undefined}
+          data-value='automatic'
+          onChange={this.onToggleEvt}
         >
-          <div style={{ display: 'flex', alignItems: 'center', width: 150 }}>
-            <div style={{ whiteSpace: 'nowrap', marginRight: 4 }}>{title}</div>
-          </div>
-        </Toggle>
-        {(lockedIndex === undefined) ? null : this.renderIndex()}
+          {t('Sorted automatically')}
+        </Radio>
+        <Radio
+          name='lockedGroup'
+          checked={lockedIndex !== undefined}
+          data-value='locked'
+          onChange={this.onToggleEvt}
+        >
+          {t('Locked to index')}
+        </Radio>
+        {this.renderIndex()}
       </FlexLayout>
     );
   }
@@ -58,14 +66,16 @@ class LockIndex extends ComponentEx<IProps, {}> {
   private renderIndex(): JSX.Element {
     const { t, lockedIndex, plugin } = this.props;
 
-    const matched = plugin.modIndex === lockedIndex;
+    const matched = (lockedIndex === undefined) || (plugin.modIndex === lockedIndex);
 
     return (
       <FormGroup validationState={matched ? 'success' : 'error'}>
         <FormControl
           type='text'
-          value={toHex(lockedIndex)}
+          value={(lockedIndex !== undefined) ? toHex(lockedIndex) : ''}
+          placeholder={t('Automatic')}
           onChange={this.setIndex}
+          disabled={lockedIndex === undefined}
         />
         {matched ? null : (
           <ControlLabel style={{ maxWidth: 250 }}>
@@ -81,6 +91,11 @@ class LockIndex extends ComponentEx<IProps, {}> {
     const { gameMode, onLockPluginIndex, plugin } = this.props;
     onLockPluginIndex(gameMode, plugin.name, newValue ? plugin.modIndex : undefined);
     this.forceUpdate();
+  }
+
+  private onToggleEvt = (evt: React.FormEvent<any>) => {
+    const value = evt.currentTarget.getAttribute('data-value');
+    this.onToggle(value === 'locked');
   }
 
   private setIndex = (evt) => {
