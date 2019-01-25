@@ -1017,9 +1017,6 @@ fsevents@^1.2.2:
   version "1.2.7"
   resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-1.2.7.tgz#4851b664a3783e52003b3c66eb0eee1074933aa4"
   integrity sha512-Pxm6sI2MeBD7RdD12RYsqaP0nMiwx8eZBXCa6z2L+mRHm2DYrOYwihmhjpkdjUHwQhslWQjRpEgNq4XvBmaAuw==
-  dependencies:
-    nan "^2.9.2"
-    node-pre-gyp "^0.10.0"
 
 gauge@~2.7.3:
   version "2.7.4"
@@ -2526,8 +2523,8 @@ vm-browserify@0.0.4:
     indexof "0.0.1"
 
 vortex-api@Nexus-Mods/vortex-api:
-  version "0.16.11-pre.1"
-  resolved "https://codeload.github.com/Nexus-Mods/vortex-api/tar.gz/1e6d904f8f5bb6ffbe02019c00c36a7318ef1939"
+  version "0.17.0-r6"
+  resolved "https://codeload.github.com/Nexus-Mods/vortex-api/tar.gz/30f0827fb6f99f3b5a480a29d91617f6d0f4334c"
 
 watchpack@^1.5.0:
   version "1.6.0"
