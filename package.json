@@ -32,8 +32,8 @@
     "iconv-lite": "^0.4.15",
     "immutability-helper": "^2.2.2",
     "json-loader": "^0.5.4",
-    "ts-loader": "2.3.4",
+    "ts-loader": "^4.4.2",
     "vortex-api": "Nexus-Mods/vortex-api",
-    "webpack": "^3.5.5"
+    "webpack": "^4.17.1"
   }
 }
