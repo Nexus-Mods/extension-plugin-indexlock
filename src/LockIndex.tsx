@@ -3,7 +3,7 @@ import { IPlugin } from './types';
 
 import * as React from 'react';
 import { ControlLabel, FormControl, FormGroup, Radio } from 'react-bootstrap';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import * as Redux from 'redux';
 import { ComponentEx, FlexLayout, Toggle, types, util } from 'vortex-api';
@@ -122,6 +122,6 @@ function mapDispatchToProps(dispatch: Redux.Dispatch<any>): IActionProps {
   };
 }
 
-export default translate(['common', 'gamebryo-lockindex'])(
+export default withTranslation(['common', 'gamebryo-lockindex'])(
   connect(mapStateToProps, mapDispatchToProps)(
-    LockIndex)) as React.ComponentClass<IBaseProps>;
+    LockIndex) as any) as React.ComponentClass<IBaseProps>;

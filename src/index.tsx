@@ -3,7 +3,6 @@ import { indexReducer } from './reducers';
 import { IPlugin } from './types';
 
 import * as Promise from 'bluebird';
-import * as I18next from 'i18next';
 import * as path from 'path';
 import * as React from 'react';
 import { selectors, types, util } from 'vortex-api';
@@ -22,7 +21,7 @@ function genAttribute(api: types.IExtensionApi): types.ITableAttribute<IPlugin> 
       + 'Further note: This lets you place non-master esps before masters but the game '
       + 'will not load them in this order.'),
     customRenderer:
-        (plugin: IPlugin, detail, t: I18next.TranslationFunction) => (
+        (plugin: IPlugin) => (
           <LockIndex
             plugin={plugin}
             gameMode={selectors.activeGameId(api.store.getState())}
