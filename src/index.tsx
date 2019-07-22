@@ -3,7 +3,6 @@ import { indexReducer } from './reducers';
 import { IPlugin } from './types';
 
 import * as Promise from 'bluebird';
-import * as path from 'path';
 import * as React from 'react';
 import { selectors, types, util } from 'vortex-api';
 
@@ -40,6 +39,7 @@ function genAttribute(api: types.IExtensionApi): types.ITableAttribute<IPlugin> 
 }
 
 interface ILoadOrderEntry {
+  name: string;
   enabled: boolean;
   loadOrder: number;
 }
@@ -59,6 +59,9 @@ function genApplyIndexlock(api: types.IExtensionApi) {
       return;
     }
 
+    const pluginInfo: { [id: string]: any } =
+      util.getSafe(state, ['session', 'plugins', 'pluginInfo'], {});
+
     // create sorted order without any locked plugins
     const sorted = Object.keys(newLoadOrder)
       .filter(key => fixed[key] === undefined)
@@ -76,6 +79,9 @@ function genApplyIndexlock(api: types.IExtensionApi) {
 
     // insert the plugins where the locked index is too low at the beginning
     // TODO: This is rather inefficient but it should also not run too often
+    // TODO: This code does nothing. It was originally written to insert those
+    //   fixed plugins where the fixed idx was so low it would have had to be inserted before
+    //   native plugins. How is this prevented now?
     const prependOffset = 0;
     while (true) {
       const lowIdx =
@@ -91,12 +97,12 @@ function genApplyIndexlock(api: types.IExtensionApi) {
       ++currentIndex;
     }
 
+    // this inserts all fixed-index plugins in the middle of the list
     // tslint:disable-next-line:prefer-for-of
     for (let idx = 0; (idx < sorted.length) && (Object.keys(toInsert).length > 0); ++idx) {
-      if ((newLoadOrder[sorted[idx]] === undefined) || !newLoadOrder[sorted[idx]].enabled) {
-        continue;
-      }
-      if (path.extname(sorted[idx]) === '.esl') {
+      if ((newLoadOrder[sorted[idx]] === undefined)
+          || !newLoadOrder[sorted[idx]].enabled
+          || util.getSafe(pluginInfo, [sorted[idx], 'isLight'], false)) {
         continue;
       }
 
@@ -106,12 +112,15 @@ function genApplyIndexlock(api: types.IExtensionApi) {
         delete toInsert[currentIndex];
       }
     }
+    // finally, append everything that has an index higher than the last regularly sorted one
     Object.keys(toInsert).forEach(idx => {
       sorted.push(toInsert[idx]);
     });
     try {
       updating = true;
-      api.events.emit('set-plugin-list', sorted, false);
+      api.events.emit('set-plugin-list', sorted.map(id => (newLoadOrder[id] !== undefined)
+        ? (newLoadOrder[id].name || id)
+        : id), false);
     } finally {
       updating = false;
     }
@@ -132,6 +141,10 @@ function init(context: types.IExtensionContext) {
     }, 2000);
     const applyIndexlock = genApplyIndexlock(context.api);
     context.api.onStateChange(['loadOrder'], (oldState, newState) => applyIndexlock(newState));
+    context.api.onStateChange(['session', 'plugins', 'pluginInfo'], () => {
+      const state = store.getState();
+      applyIndexlock(state.loadOrder);
+    });
     context.api.onStateChange(['persistent', 'plugins', 'lockedIndices'], () => {
       liDebouncer.schedule();
     });

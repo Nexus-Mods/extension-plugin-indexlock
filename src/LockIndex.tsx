@@ -89,7 +89,7 @@ class LockIndex extends ComponentEx<IProps, {}> {
 
   private onToggle = (newValue: boolean, dataId?: string) => {
     const { gameMode, onLockPluginIndex, plugin } = this.props;
-    onLockPluginIndex(gameMode, plugin.name, newValue ? plugin.modIndex : undefined);
+    onLockPluginIndex(gameMode, plugin.name.toLowerCase(), newValue ? plugin.modIndex : undefined);
     this.forceUpdate();
   }
 
@@ -102,7 +102,7 @@ class LockIndex extends ComponentEx<IProps, {}> {
     const { gameMode, onLockPluginIndex, plugin } = this.props;
     const newValue = Number.parseInt(evt.currentTarget.value, 16);
     if (!isNaN(newValue) && (newValue <= 0xFF)) {
-      onLockPluginIndex(gameMode, plugin.name, newValue);
+      onLockPluginIndex(gameMode, plugin.name.toLowerCase(), newValue);
     }
   }
 }
@@ -117,8 +117,8 @@ function mapStateToProps(state: types.IState, ownProps: IBaseProps): IConnectedP
 
 function mapDispatchToProps(dispatch: Redux.Dispatch<any>): IActionProps {
   return {
-    onLockPluginIndex: (gameId: string, pluginName: string, modIndex: number) =>
-      dispatch(lockPluginIndex(gameId, pluginName, modIndex)),
+    onLockPluginIndex: (gameId: string, pluginId: string, modIndex: number) =>
+      dispatch(lockPluginIndex(gameId, pluginId, modIndex)),
   };
 }
 
