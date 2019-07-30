@@ -109,7 +109,7 @@ class LockIndex extends ComponentEx<IProps, {}> {
 
 function mapStateToProps(state: types.IState, ownProps: IBaseProps): IConnectedProps {
   const statePath = ['persistent', 'plugins', 'lockedIndices',
-                     ownProps.gameMode, ownProps.plugin.name];
+                     ownProps.gameMode, ownProps.plugin.name.toLowerCase()];
   return {
     lockedIndex: util.getSafe(state, statePath, undefined),
   };
