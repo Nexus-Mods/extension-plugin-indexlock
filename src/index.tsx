@@ -145,7 +145,17 @@ function init(context: types.IExtensionContext) {
       return Promise.resolve();
     }, 2000);
     const applyIndexlock = genApplyIndexlock(context.api);
-    context.api.onStateChange(['loadOrder'], (oldState, newState) => applyIndexlock(newState));
+
+    let deploying = false;
+
+    context.api.onAsync('will-deploy', () => { deploying = true; return Promise.resolve(); });
+    context.api.onAsync('did-deploy', () => { deploying = false; return Promise.resolve(); });
+
+    context.api.onStateChange(['loadOrder'], (oldState, newState) => {
+      if (!deploying) {
+        return applyIndexlock(newState);
+      }
+    });
     context.api.onStateChange(['session', 'plugins', 'pluginInfo'], () => {
       const state = store.getState();
       applyIndexlock(state.loadOrder);
