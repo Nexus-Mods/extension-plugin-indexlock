@@ -51,7 +51,7 @@ function genApplyIndexlock(api: types.IExtensionApi) {
       return;
     }
 
-    const state = api.store.getState();
+    const state: types.IState = api.store.getState();
     const gameMode = selectors.activeGameId(state);
     const fixed = util.getSafe(state, ['persistent', 'plugins', 'lockedIndices', gameMode], {});
     if (Object.keys(fixed).length === 0) {
@@ -97,11 +97,16 @@ function genApplyIndexlock(api: types.IExtensionApi) {
       ++currentIndex;
     }
 
+    const isNative = (id: string) =>
+      util.getSafe(state.session, ['plugins', 'pluginList', id, 'isNative'], false);
+
+    const isEnabled = (id: string, entry: ILoadOrderEntry) => entry.enabled || isNative(id);
+
     // this inserts all fixed-index plugins in the middle of the list
     // tslint:disable-next-line:prefer-for-of
     for (let idx = 0; (idx < sorted.length) && (Object.keys(toInsert).length > 0); ++idx) {
       if ((newLoadOrder[sorted[idx]] === undefined)
-          || !newLoadOrder[sorted[idx]].enabled
+          || !isEnabled(sorted[idx], newLoadOrder[sorted[idx]])
           || util.getSafe(pluginInfo, [sorted[idx], 'isLight'], false)) {
         continue;
       }
