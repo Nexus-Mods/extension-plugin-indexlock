@@ -51,7 +51,7 @@ function genApplyIndexlock(api: types.IExtensionApi) {
       return;
     }
 
-    const state = api.store.getState();
+    const state: types.IState = api.store.getState();
     const gameMode = selectors.activeGameId(state);
     const fixed = util.getSafe(state, ['persistent', 'plugins', 'lockedIndices', gameMode], {});
     if (Object.keys(fixed).length === 0) {
@@ -97,11 +97,16 @@ function genApplyIndexlock(api: types.IExtensionApi) {
       ++currentIndex;
     }
 
+    const isNative = (id: string) =>
+      util.getSafe(state.session, ['plugins', 'pluginList', id, 'isNative'], false);
+
+    const isEnabled = (id: string, entry: ILoadOrderEntry) => entry.enabled || isNative(id);
+
     // this inserts all fixed-index plugins in the middle of the list
     // tslint:disable-next-line:prefer-for-of
     for (let idx = 0; (idx < sorted.length) && (Object.keys(toInsert).length > 0); ++idx) {
       if ((newLoadOrder[sorted[idx]] === undefined)
-          || !newLoadOrder[sorted[idx]].enabled
+          || !isEnabled(sorted[idx], newLoadOrder[sorted[idx]])
           || util.getSafe(pluginInfo, [sorted[idx], 'isLight'], false)) {
         continue;
       }
@@ -140,7 +145,17 @@ function init(context: types.IExtensionContext) {
       return Promise.resolve();
     }, 2000);
     const applyIndexlock = genApplyIndexlock(context.api);
-    context.api.onStateChange(['loadOrder'], (oldState, newState) => applyIndexlock(newState));
+
+    let deploying = false;
+
+    context.api.onAsync('will-deploy', () => { deploying = true; return Promise.resolve(); });
+    context.api.onAsync('did-deploy', () => { deploying = false; return Promise.resolve(); });
+
+    context.api.onStateChange(['loadOrder'], (oldState, newState) => {
+      if (!deploying) {
+        return applyIndexlock(newState);
+      }
+    });
     context.api.onStateChange(['session', 'plugins', 'pluginInfo'], () => {
       const state = store.getState();
       applyIndexlock(state.loadOrder);
