@@ -31,7 +31,7 @@
     "immutability-helper": "^2.2.2",
     "json-loader": "^0.5.4",
     "ts-loader": "^4.4.2",
-    "vortex-api": "Nexus-Mods/vortex-api",
+    "vortex-api": "Nexus-Mods/Vortex-api#electron7",
     "webpack": "^4.17.1"
   }
 }

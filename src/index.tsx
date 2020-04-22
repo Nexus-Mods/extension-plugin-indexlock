@@ -2,7 +2,7 @@ import LockIndex from './LockIndex';
 import { indexReducer } from './reducers';
 import { IPlugin } from './types';
 
-import * as Promise from 'bluebird';
+import Promise from 'bluebird';
 import * as React from 'react';
 import { selectors, types, util } from 'vortex-api';
 
