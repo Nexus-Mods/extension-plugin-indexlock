@@ -115,7 +115,7 @@ function mapStateToProps(state: types.IState, ownProps: IBaseProps): IConnectedP
   };
 }
 
-function mapDispatchToProps(dispatch: Redux.Dispatch<any>): IActionProps {
+function mapDispatchToProps(dispatch: Redux.Dispatch<any, any>): IActionProps {
   return {
     onLockPluginIndex: (gameId: string, pluginId: string, modIndex: number) =>
       dispatch(lockPluginIndex(gameId, pluginId, modIndex)),
